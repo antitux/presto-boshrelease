@@ -1,0 +1,19 @@
+<%   
+
+discovery_uri = nil
+if_link('presto-coordinator') { |presto_link| discovery_uri = "http://#{presto_link.instances[0].address}:#{presto_link.p('presto.http-server.http.port')}" }
+unless discovery_uri
+  discovery_uri = p('presto.discovery_uri')
+end
+
+-%>
+coordinator=<%= p('presto.coordinator') %>
+node-scheduler.include-coordinator=<%= p('presto.node-scheduler.include-coordinator') %>
+http-server.http.port=<%= p('presto.http-server.http.port') %>
+query.max-memory=<%= p('presto.query.max-memory') %>
+query.max-memory-per-node=<%= p('presto.query.max-memory-per-node') %>
+query.max-total-memory-per-node=<%= p('presto.query.max-total-memory-per-node') %>
+<% if_p('presto.discovery-server.enabled') do |ds| -%>
+discovery-server.enabled=<%= ds %>
+<% end -%>
+discovery.uri=<%= discovery_uri %>

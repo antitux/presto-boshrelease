@@ -1,0 +1,30 @@
+set -e
+
+echo "Copying compile.env..."
+mkdir ${BOSH_INSTALL_TARGET}/bosh
+cp python-3.7/runtime.env ${BOSH_INSTALL_TARGET}/bosh/runtime.env
+cp python-3.7/compile.env ${BOSH_INSTALL_TARGET}/bosh/compile.env
+
+echo "Extracting libffi..."
+tar xzvf python/libffi-3.3.tar.gz
+
+echo "Building libffi..."
+pushd libffi-3.3
+  ./configure --prefix="${BOSH_INSTALL_TARGET}"
+  make
+  make install
+popd
+
+echo "Extracting python..."
+tar xzvf python/Python-3.7.10.tgz 
+
+python_dir=$(find . -type d -name '*3.7.10*' | head -n 1)
+echo "Building python..."
+pushd "${python_dir}"
+  LDFLAGS="-Wl,-rpath -Wl,${BOSH_INSTALL_TARGET}/lib" CFLAGS='-fPIC' ./configure --prefix="${BOSH_INSTALL_TARGET}"
+  make
+  make install
+popd
+
+ln -s ${BOSH_INSTALL_TARGET}/bin/python3 ${BOSH_INSTALL_TARGET}/bin/python
+ln -s ${BOSH_INSTALL_TARGET}/bin/pip3 ${BOSH_INSTALL_TARGET}/bin/pip

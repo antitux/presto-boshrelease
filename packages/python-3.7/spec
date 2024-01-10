@@ -1,0 +1,10 @@
+---
+name: python-3.7
+
+dependencies: []
+
+files:
+- python-3.7/compile.env
+- python-3.7/runtime.env
+- python/Python-3.7.10.tgz
+- python/libffi-3.3.tar.gz

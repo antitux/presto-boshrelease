@@ -1,0 +1,160 @@
+---
+name: presto
+
+stemcells:
+- alias: xenial
+  os: ubuntu-xenial
+  version: latest
+
+releases:
+- name: presto
+  version: latest
+- name: postgres
+  version: 3.2.1
+  url: https://github.com/cloudfoundry-community/postgres-boshrelease/releases/download/v3.2.1/postgres-3.2.1.tgz
+  sha1: b687753085f770807603642b4bae6c17a483900b
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  canary_watch_time: 5000-60000
+  update_watch_time: 5000-60000
+
+instance_groups:
+- name: postgresql
+  azs: [z1]
+  instances: 1
+  jobs:
+  - name: postgres
+    release: postgres
+    provides:
+      db: {as: postgres-link}
+    properties:
+      postgres:
+        config:
+          max_connections: 500
+        databases:
+        - name: metastore_db
+          extensions: [citext]
+          users: [metastore]
+        hba:
+        - host all all 0.0.0.0/0 md5
+        - host all all ::/0 md5
+        users:
+        - username: metastore
+          password: ((metastore_password))
+          admin: true
+  networks:
+  - name: default
+  vm_type: m5.xlarge-20GB-disk
+  persistent_disk_type: 10GB
+  stemcell: xenial
+
+- name: hive
+  azs: [z1]
+  instances: 1
+  consumes:
+    postgres: {from: postgres-link}
+  provides:
+    hive: {as: hive-link}
+  jobs:
+  - name: hive
+    release: presto
+    properties:
+      hive:
+        heapsize: 15360
+      s3:
+        access_key: ((aws_access_key_id))
+        secret_key: ((aws_secret_access_key))
+        endpoint: ((s3_endpoint))
+        ssl_enabled: true
+  vm_type: m5.xlarge-20GB-disk
+  stemcell: xenial
+  persistent_disk_type: 10GB
+  networks:
+  - name: default
+
+- name: presto-coordinator
+  azs: [z1]
+  instances: 1
+  consumes:
+    postgres: {from: postgres-link}
+    hive: {from: hive-link}
+  jobs:
+  - name: presto
+    release: presto
+    provides:
+      presto: {as: presto-link}
+    consumes:
+      presto-coordinator: {from: presto-link}
+    properties:
+      presto:
+        jvm:
+          config: |
+            -server
+            -Xmx15G
+            -XX:+UseG1GC
+            -XX:G1HeapRegionSize=32M
+            -XX:+UseGCOverheadLimit
+            -XX:+ExplicitGCInvokesConcurrent
+            -XX:+HeapDumpOnOutOfMemoryError
+            -XX:+ExitOnOutOfMemoryError
+            -Djdk.attach.allowAttachSelf=true
+            -Djava.io.tmpdir=/var/vcap/data/presto
+        coordinator: true
+        node-scheduler:
+          include-coordinator: false
+        discovery-server:
+          enabled: true
+      s3:
+        access_key: ((aws_access_key_id))
+        secret_key: ((aws_secret_access_key))
+        endpoint: ((s3_endpoint))
+        ssl_enabled: true
+  vm_type: m5.xlarge-20GB-disk
+  stemcell: xenial
+  persistent_disk_type: 10GB
+  networks:
+  - name: default
+
+- name: presto-worker
+  azs: [z1]
+  instances: 6
+  consumes:
+    postgres: {from: postgres-link}
+    hive: {from: hive-link}
+  jobs:
+  - name: presto
+    release: presto
+    consumes:
+      presto-coordinator: {from: presto-link}
+    properties:
+      presto:
+        jvm:
+          config: |
+            -server
+            -Xmx15G
+            -XX:+UseG1GC
+            -XX:G1HeapRegionSize=32M
+            -XX:+UseGCOverheadLimit
+            -XX:+ExplicitGCInvokesConcurrent
+            -XX:+HeapDumpOnOutOfMemoryError
+            -XX:+ExitOnOutOfMemoryError
+            -Djdk.attach.allowAttachSelf=true
+            -Djava.io.tmpdir=/var/vcap/data/presto
+        coordinator: false
+        node-scheduler:
+          include-coordinator: false
+      s3:
+        access_key: ((aws_access_key_id))
+        secret_key: ((aws_secret_access_key))
+        endpoint: ((s3_endpoint))
+  vm_type: m5.xlarge-20GB-disk
+  stemcell: xenial
+  persistent_disk_type: 10GB
+  networks:
+  - name: default
+
+variables:
+- name: metastore_password
+  type: password

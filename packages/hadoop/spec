@@ -1,0 +1,8 @@
+---
+name: hadoop
+
+dependencies: []
+
+files:
+- hadoop/hadoop-3.3.0.tar.gz
+- hadoop/runtime.env

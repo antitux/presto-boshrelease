@@ -1,0 +1,98 @@
+Hive Values
+---
+<% 
+  # Static values specific to hive
+  db_driver = p('hive.db.driver')
+  db_flags = p('hive.db.flags')
+
+  db_host = nil
+  if_p('hive.db.host') {|host| db_host = host}
+  unless db_host
+    db_host = link('postgres').instances.first.address
+  end
+
+  db_name = nil
+  if_p('hive.db.name') {|name| db_name = name}
+  unless db_name
+    db_name = link('postgres').p('postgres.databases')[0]['name']
+  end
+
+  db_password = nil
+  if_p('hive.db.password') {|password| db_password = password}
+  unless db_password
+    db_password = link('postgres').p('postgres.users')[0]['password']
+  end
+
+  db_port = nil
+  if_p("hive.db.port") {|port| db_port = port}
+  unless db_port
+    db_port = link('postgres').p('postgres.config.port')
+  end
+
+  db_type = p('hive.db.type')
+
+  db_username = nil
+  if_p('hive.db.username') {|user| db_username = user}
+  unless db_username
+    db_username = link('postgres').p('postgres.users')[0]['username']
+  end
+  
+  s3_access_key = nil
+  if_p('s3.access_key') {|key| s3_access_key = key}
+  unless s3_access_key
+    s3_access_key = link('minio').p('credential.accesskey')
+  end
+
+  s3_secret_key = nil
+  if_p('s3.secret_key') {|key| s3_secret_key = key }
+  unless s3_secret_key
+    s3_secret_key = link('minio').p('credential.secretkey')
+  end
+
+  s3_ssl_enabled = nil
+  if_p('s3.ssl_enabled') {|ssl| s3_ssl_enabled = ssl }
+  unless s3_ssl_enabled
+    link('minio').if_p('server_cert') {s3_ssl_enabled = true}
+  end
+
+  s3_port = nil
+  if_p('s3.port') {|port| s3_port = port}
+  unless s3_port
+    s3_port = link('minio').p('port')
+  end
+
+  s3_host = nil
+  if_p('s3.host') {|host| s3_host = host}
+  unless s3_host
+    s3_host = link('minio').instances.first.address
+  end
+
+  s3_endpoint = nil
+  if_p('s3.endpoint') {|url| s3_endpoint = url}
+  unless s3_endpoint
+    protocol = "http"
+    if s3_ssl_enabled == true
+      protocol = "https"
+    end
+    s3_endpoint = "#{protocol}://#{s3_host}:#{s3_port}"
+  end
+
+  db_url = "jdbc:#{db_type}://#{db_host}:#{db_port}/#{db_name}#{db_flags}"
+-%>
+Testing vars
+---
+db_driver       : <%= db_driver %>
+db_flags        : <%= db_flags %>
+db_host         : <%= db_host %>
+db_name         : <%= db_name %>
+db_password     : <%= db_password %>
+db_port         : <%= db_port %>
+db_type         : <%= db_type %>
+db_url          : <%= db_url %>
+db_username     : <%= db_username %>
+s3_access_key   : <%= s3_access_key %>
+s3_secret_key   : <%= s3_secret_key %>
+s3_ssl_enabled  : <%= s3_ssl_enabled %>
+s3_port         : <%= s3_port %>
+s3_endpoint     : <%= s3_endpoint %>
+s3_host         : <%= s3_host %>

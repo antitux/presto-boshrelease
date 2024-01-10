@@ -1,0 +1,9 @@
+---
+name: presto
+
+dependencies:
+- openjdk-11
+
+
+files:
+- presto/presto-server-0.250.tar.gz

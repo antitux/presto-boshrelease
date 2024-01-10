@@ -1,0 +1,5 @@
+check process presto
+    with pidfile    /var/vcap/sys/run/presto/presto.pid
+    start program   "/var/vcap/jobs/presto/bin/presto_ctl start"
+    stop program    "/var/vcap/jobs/presto/bin/presto_ctl stop"
+    group           vcap

@@ -1,0 +1,65 @@
+<%
+
+  metastore_uri = nil
+  if_link('hive') { |hive_link| metastore_uri = hive_link.instances.map {|e| "thrift://#{e.address}:9083" } }
+  unless metastore_uri
+    metastore_uri = p('hive.metastore_uri')
+  end
+
+  s3_access_key = nil
+  if_p('s3.access_key') {|key| s3_access_key = key}
+  unless s3_access_key
+    if_link('minio') do |minio|
+      s3_access_key = minio.p('credential.accesskey')
+    end
+  end
+
+  s3_secret_key = nil
+  if_p('s3.secret_key') {|key| s3_secret_key = key }
+  unless s3_secret_key
+    if_link('minio') do |minio|
+      s3_secret_key = minio.p('credential.secretkey')
+    end
+  end
+
+  s3_ssl_enabled = nil
+  if_p('s3.ssl_enabled') {|ssl| s3_ssl_enabled = ssl }
+  unless s3_ssl_enabled
+    if_link('minio') do |minio|
+      minio.if_p('server_cert') {s3_ssl_enabled = true}
+    end
+  end
+
+  s3_port = nil
+  if_p('s3.port') {|port| s3_port = port}
+  unless s3_port
+    if_link('minio') do |minio|
+      s3_port = minio.p('port')
+    end
+  end
+
+  s3_host = nil
+  if_p('s3.host') {|host| s3_host = host}
+  unless s3_host
+    if_link('minio') {|minio| s3_host = minio.instances.first.address}
+  end
+
+  s3_endpoint = nil
+  if_p('s3.endpoint') {|url| s3_endpoint = url}
+  unless s3_endpoint
+    protocol = "http"
+    if s3_ssl_enabled == true
+      protocol = "https"
+    end
+    s3_endpoint = "#{protocol}://#{s3_host}:#{s3_port}"
+  end
+  
+ -%>
+connector.name=hive-hadoop2
+hive.metastore.uri=<%= metastore_uri.join(',') %>
+hive.s3.aws-access-key=<%= s3_access_key %>
+hive.s3.aws-secret-key=<%= s3_secret_key %>
+hive.s3.endpoint=<%= s3_endpoint %>
+hive.s3.path-style-access=true
+hive.metastore-timeout=6000s
+hive.metastore-cache-ttl=0s

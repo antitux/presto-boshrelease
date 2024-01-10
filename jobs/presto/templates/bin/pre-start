@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+PRESTO_DATA=/var/vcap/store/presto
+
+if [ ! -d "$PRESTO_DATA" ] 
+then
+    echo "Cleaning out presto" 
+    mkdir -p $PRESTO_DATA/var
+    rm -rfv -p $PRESTO_DATA/etc
+    ln -sv /var/vcap/jobs/presto/config $PRESTO_DATA/etc
+    ln -sv /var/vcap/sys/log/presto $PRESTO_DATA/var/log
+fi
+
+rm -rfv $PRESTO_DATA/etc 

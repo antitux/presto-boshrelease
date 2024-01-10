@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Load vars
+. /var/vcap/jobs/hive/bin/env
+. /var/vcap/jobs/hive/bin/ctl_utils.sh
+
+
+
+COMMAND=$1
+
+case $COMMAND in
+  start)
+    {
+    /var/vcap/packages/hive/bin/start-metastore &
+    echo $! > $METASTORE_PID_FILE
+    } 2>&1 | tee -a /var/vcap/sys/log/hive/hive_ctl.log
+  ;;
+  stop)
+    {
+    echo -n "Stopping Metastore PID: $(cat $METASTORE_PID_FILE).."
+    kill_and_wait $METASTORE_PID_FILE
+    echo " done."
+    } 2>&1 | tee -a /var/vcap/sys/log/hive/hive_ctl.log
+  ;;
+  *)
+    echo "Usage: $0 COMMAND"
+    echo "  start:  Start Hive Metastore Server"
+    echo "  stop:   Stop Hive Metastore Server"
+esac

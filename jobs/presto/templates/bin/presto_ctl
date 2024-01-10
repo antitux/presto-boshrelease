@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# load variables
+. /var/vcap/jobs/presto/bin/env
+. /var/vcap/jobs/presto/bin/ctl_utils.sh
+
+export VCAP=/var/vcap
+
+PID=$VCAP/sys/run/presto/presto.pid
+DATA=$VCAP/store/presto
+ETC=$VCAP/jobs/presto/config
+LOG=$VCAP/sys/log/presto
+
+COMMAND=$1
+
+case $COMMAND in
+  start)
+    {
+    launcher \
+        --etc-dir=$ETC \
+        --data-dir=$DATA \
+        --pid-file=$PID \
+        --launcher-log-file=$LOG/launcher.log \
+        --server-log-file=$LOG/server.log \
+        start
+    echo "Presto started with PID $(cat $PID)"
+    } 2>&1 | tee -a /var/vcap/sys/log/presto/presto_ctl.log
+  ;;
+  stop)
+    {
+    kill_and_wait $PID
+    } 2>&1 | tee -a /var/vcap/sys/log/presto/presto_ctl.log
+
+  ;;
+  *)
+    echo "Usage: $0 COMMAND"
+    echo "  start:  Start Presto Server"
+    echo "  stop:   Stop Presto Server"
+esac
+

@@ -1,0 +1,21 @@
+hadoop/hadoop-3.3.0.tar.gz:
+  size: 500749234
+  sha: sha256:ea1a0f0afcdfb9b6b9d261cdce5a99023d7e8f72d26409e87f69bda65c663688
+hive/hive-standalone-metastore-3.1.2-bin.tar.gz:
+  size: 26644153
+  sha: sha256:a2e9fb781e1b86c066d2f9c71f0210ad161bc0bd791e5999c325ffbd4354c190
+hive/log4j-web-2.14.1.jar:
+  size: 35337
+  sha: sha256:7ed2caba3e3d1c241a66610a03c06400d9b16a050430dff862e2283afa5bc771
+hive/postgresql-42.2.20.jar:
+  size: 1005347
+  sha: sha256:708b2938aea81f32b8b35440da233828284a100e6f2212a7ab1eeaf4b3a6514e
+presto/presto-server-0.250.tar.gz:
+  size: 960842748
+  sha: sha256:0c93b0d1086543627136230557b030cd93de1c72a619aa051cc11b10630f0859
+python/Python-3.7.10.tgz:
+  size: 23281560
+  sha: sha256:c9649ad84dc3a434c8637df6963100b2e5608697f9ba56d82e3809e4148e0975
+python/libffi-3.3.tar.gz:
+  size: 1305466
+  sha: sha256:72fba7922703ddfa7a028d513ac15a85c8d54c8d67f55fa5a4802885dc652056

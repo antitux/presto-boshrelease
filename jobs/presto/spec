@@ -1,0 +1,117 @@
+---
+name: presto
+
+consumes:
+- name: postgres
+  type: postgresql
+  optional: true
+- name: minio
+  type: server
+  optional: true
+- name: hive
+  type: metastore
+  optional: true
+- name: presto-coordinator
+  type: presto
+  optional: true
+
+provides:
+- name: presto
+  type: presto
+  properties:
+  - presto.http-server.http.port
+
+templates:
+  config/catalog/hive.properties.erb: config/catalog/hive.properties
+  config/config.properties.erb: config/config.properties
+  config/jvm.config.erb: config/jvm.config
+  config/log.properties.erb: config/log.properties
+  config/node.properties.erb: config/node.properties
+  bin/presto_ctl: bin/presto_ctl
+  bin/env: bin/env
+  bin/pre-start: bin/pre-start
+  bin/ctl_utils.sh: bin/ctl_utils.sh
+
+packages:
+- presto
+- openjdk-11
+- python-3.7
+
+properties:
+  presto.discovery.uri:
+    description: |
+      presto discovery uri.
+      Order of operations:
+      1. Coordinator node defined by the manifest link
+      2. Itself in single-node configuration.
+    default: http://localhost:8080
+  presto.jvm.config:
+    description: JVM Configuration for Presto
+    example: |
+      -server
+      -Xmx6G
+      -XX:+UseG1GC
+      -XX:G1HeapRegionSize=32M
+      -XX:+UseGCOverheadLimit
+      -XX:+ExplicitGCInvokesConcurrent
+      -XX:+HeapDumpOnOutOfMemoryError
+      -XX:+ExitOnOutOfMemoryError
+      -Djdk.attach.allowAttachSelf=true
+      -Djava.io.tmpdir=/var/vcap/data/presto
+    default: |
+      -server
+      -Xmx6G
+      -XX:+UseG1GC
+      -XX:G1HeapRegionSize=32M
+      -XX:+UseGCOverheadLimit
+      -XX:+ExplicitGCInvokesConcurrent
+      -XX:+HeapDumpOnOutOfMemoryError
+      -XX:+ExitOnOutOfMemoryError
+      -Djdk.attach.allowAttachSelf=true
+      -Djava.io.tmpdir=/var/vcap/data/presto
+  presto.coordinator:
+    description: Is this a coordinating node? [true|false]
+    default: false
+  presto.node-scheduler.include-coordinator:
+    description: Does this scheduler include a coordinator? [true|false]
+    default: false
+  presto.http-server.http.port:
+    description: Presto http server port
+    default: 8080
+  presto.query.max-memory:
+    description: |
+      presto max-memory per query
+    default: 16GB
+  presto.query.max-memory-per-node:
+    description: presto max memory per query per node
+    default: 1GB
+  presto.query.max-total-memory-per-node:
+    description: presto default total max memory per node
+    default: 2GB
+  presto.discovery-server.enabled:
+    description: presto discovery server enabled? [true|false]
+    optional: true
+  hive.metastore.uri:
+    description: |
+      hive metastore uri
+      comma delimited.
+    example: |
+      thrift://192.168.0.1:9093,thrift:192.168.0.2:9093
+    optional: true
+  s3.access_key:
+    optional: true
+    description: S3 access key
+  s3.secret_key:
+    optional: true
+    description: s3 secret key
+  s3.ssl_enabled:
+    description: Is ssl enabled? true|false
+    default: false
+  s3.port:
+    description: S3 port
+    default: 9000
+  s3.endpoint:
+    optional: true
+    descritpion: S3 endpoint url
+    optional: true
+  

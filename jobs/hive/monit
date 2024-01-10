@@ -1,0 +1,4 @@
+check process hive
+    with pidfile /var/vcap/sys/run/hive/metastore.pid
+    start program "/var/vcap/jobs/hive/bin/hive_ctl start"
+    stop program "/var/vcap/jobs/hive/bin/hive_ctl stop"

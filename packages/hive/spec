@@ -1,0 +1,11 @@
+---
+name: hive
+
+dependencies:
+- hadoop
+
+files: 
+- hive/hive-standalone-metastore-3.1.2-bin.tar.gz
+- hive/runtime.env
+- hive/postgresql-42.2.20.jar
+- hive/log4j-web-2.14.1.jar

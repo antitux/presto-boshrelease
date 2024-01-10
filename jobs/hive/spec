@@ -1,0 +1,85 @@
+---
+name: hive
+
+templates:
+  conf/metastore-site.xml: conf/metastore-site.xml
+  bin/hive_ctl: bin/hive_ctl
+  conf/metastore-log4j2.properties: conf/metastore-log4j2.properties
+  bin/env: bin/env
+  bin/ctl_utils.sh: bin/ctl_utils.sh
+
+consumes:
+- name: postgres
+  type: postgresql
+  optional: true
+- name: minio
+  type: server
+  optional: true
+
+provides:
+- name: hive
+  type: metastore
+
+packages:
+- hive
+- hadoop
+- openjdk-11
+
+properties:
+  hive.db.type:
+    description: Hive metastore database type
+    default: postgresql
+  hive.db.host:
+    description: Hive metastore database host
+    optional: true
+  hive.db.port:
+    description: Hive metastore database port
+    optional: true
+    default: 5432
+  hive.db.name:
+    description: Hive metastore database name
+    default: metastore
+  hive.db.flags:
+    description: |
+      Hive metastore database flags. You must have the starting ? otherwise it won't work.
+    example: |
+      ?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=UTC
+    default: ?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=UTC
+  hive.db.driver:
+    description: Hive metastore default driver
+    example: |
+      org.postgresql.Driver
+      com.mysql.jdbc.Driver
+    default: org.postgresql.Driver
+  hive.db.username:
+    description: Hive metastore user name
+    optional: true
+  hive.db.password:
+    optional: true
+    description: Hive db password
+  hive.heapsize:
+    description: |
+      Java Heapsize for Hive. Set in M.
+      Leave at least 10% available for the OS.
+    example: |
+      1024 # Equals 1024mb
+    default: 1024
+  s3.access_key:
+    optional: true
+    description: S3 access key
+  s3.secret_key:
+    optional: true
+    description: s3 secret key
+  s3.ssl_enabled:
+    description: Is ssl enabled? true|false
+    default: false
+  s3.port:
+    description: S3 port
+    default: 9000
+  s3.endpoint:
+    optional: true
+    descritpion: S3 endpoint url
+    optional: true
+  
+
+

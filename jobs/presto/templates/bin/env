@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# load variables
+. /var/vcap/packages/openjdk-11/bosh/runtime.env 
+. /var/vcap/packages/python-3.7/bosh/runtime.env
+
+export PATH=/var/vcap/packages/presto/bin:$PATH

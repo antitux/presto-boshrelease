@@ -1,0 +1,12 @@
+set -e
+. /var/vcap/packages/hadoop/bosh/runtime.env
+
+tar -zxvf hive/hive-standalone-metastore-3.1.2-bin.tar.gz -C $BOSH_INSTALL_TARGET --strip-components=1
+rm -rfv $BOSH_INSTALL_TARGET/lib/guava-19.0.jar
+cp -av $HADOOP_HOME/share/hadoop/common/lib/guava-27.0-jre.jar $BOSH_INSTALL_TARGET/lib
+cp -av $HADOOP_HOME/share/hadoop/tools/lib/hadoop-aws-3.3.0.jar $BOSH_INSTALL_TARGET/lib
+cp -av $HADOOP_HOME/share/hadoop/tools/lib/aws-java-sdk-bundle-1.11.*.jar $BOSH_INSTALL_TARGET/lib
+cp -av hive/postgresql-42.2.20.jar $BOSH_INSTALL_TARGET/lib
+cp -av hive/log4j-web-2.14.1.jar $BOSH_INSTALL_TARGET/lib
+mkdir -p $BOSH_INSTALL_TARGET/bosh
+cp -av hive/runtime.env $BOSH_INSTALL_TARGET/bosh/

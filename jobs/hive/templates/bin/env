@@ -1,0 +1,2 @@
+. /var/vcap/packages/hive/bosh/runtime.env
+export HADOOP_HEAPSIZE=<%= p('hive.heapsize') %>
